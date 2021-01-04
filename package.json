@@ -1,0 +1,19 @@
+{
+  "name": "history-of-ecmascript",
+  "version": "1.0.0",
+  "description": "Examples of new code previously impossible or difficult made possible with additions to ECMAScript in 2015 and beyond",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mikemccaughan/history-of-ecmascript.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mikemccaughan/history-of-ecmascript/issues"
+  },
+  "homepage": "https://github.com/mikemccaughan/history-of-ecmascript#readme"
+}
