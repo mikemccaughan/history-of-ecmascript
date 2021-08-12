@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>History of ECMAScript (2015+) - Arrow Functions</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="/prism.js"></script>
+    <link rel="stylesheet" type="text/css" media="screen" href="/prism.css" />
+    <style>
+      pre.console {
+        background-color: #f5f2f0;
+        font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+        text-shadow: 0 1px white;
+        font-size: 1rem;
+        line-height: 1.5;
+        padding: 1em;
+      }
+    </style>
+    <script>
+      const origConsoleLog = console.log;
+      const origConsoleClear = console.clear;
+      console.log = function (...msgs) {
+        var output = document.querySelector(`#console-${this.id}`);
+        if (output) {
+          output.innerHTML += `<p>${msgs.join(' ')}</p>`;
+        }
+      };
+      console.clear = function (id) {
+        var output = document.querySelector(`#console-${id}`);
+        if (output) {
+          output.innerHTML = '';
+        }
+      };
+      Object.defineProperty(console, 'id', {
+        get: function () {
+          return this.value;
+        },
+        set: function (value) {
+          if (this.value !== value) {
+            if (!value) {
+              this.clear(this.value);
+            }
+            this.value = value;
+          }
+        },
+      });
+    </script>
+  </head>
+  <body>
+    <h1 id="history-of-ecmascript">history-of-ecmascript</h1>
+    <h2 id="es6-aka-es2015">ES6 aka ES2015</h2>
+    <h3>Syntax Additions</h3>
+    <h4>Arrow Functions</h4>
+    <p>
+      Arrow functions allow for more concise syntax, with some caveats that are
+      important to remember.
+    </p>
+    <ul>
+      <li>
+        Arrow functions inherit the <code>this</code> of the surrounding code.
+        <pre><code class="language-javascript">
+    class Test {
+        constructor(x) {
+            this.x = x ?? 1;
+        }
+        getX = () => this.x
+        getXFn = function() {
+            return this.x;
+        }
+    }
+    const test = new Test();
+    console.log(test.getX()); // 1
+    const test2 = new Test(2);
+    console.log(test2.getX()); // 2
+    console.log(test2.getXFn.call(test)); // 1, getXFn is a normal function, and therefore will use the `this` passed to `call`...
+    console.log(test.getXFn.call(test2)); // 2, ... not the `this` it was defined with.
+    console.log(test2.getX.call(test)); // 2, getX is an arrow function, and therefore ignores the `this` passed to `call`...
+    console.log(test.getX.call(test2)); // 1, ... and uses the `this` it was defined with (or rather, the `this` the surrounding code has at the time of execution)
+        </code></pre>
+        <pre class="console"><output id="console-run"></output></pre>
+        <button id="run">Run Code</button>
+        <script id="script-run">
+          class Test {
+            constructor(x) {
+              this.x = x ?? 1;
+            }
+            getX = () => this.x;
+            getXFn = function () {
+              return this.x;
+            };
+          }
+          function run() {
+            console.id = null;
+            console.id = 'run';
+            const test = new Test();
+            console.log(test.getX()); // 1
+            const test2 = new Test(2);
+            console.log(test2.getX()); // 2
+            console.log(test2.getXFn.call(test)); // 1
+            console.log(test.getXFn.call(test2)); // 2
+            console.log(test2.getX.call(test)); // 2
+            console.log(test.getX.call(test2)); // 1
+          }
+          document.querySelector('#run').addEventListener('click', run);
+        </script>
+      </li>
+      <li>
+        Arrow functions do not have an locally bound
+        <code>arguments</code> object. This means you cannot do things like
+        <code>[].slice.call(arguments)</code> to get an array of arguments. But
+        that's okay, because you have <a href="rest.js">rest parameters</a> (and
+        <a href="spread.js">spread syntax</a>) for that:
+        <pre><code class="language-javascript">
+    // Old way:
+    function oldTest() {
+        var args = Array.prototype.slice.call(arguments);
+        console.log.apply(console, args);
+    }
+    // New way:
+    const test = (...args) => {
+        console.log(...args);
+    };
+    oldTest(1, 'a', 3.14, [4,5,6]); // 1 a 3.14 4,5,6
+    test(1, 'a', 3.14, [4,5,6]); // 1 a 3.14 4,5,6
+          </code></pre>
+        <pre class="console"><output id="console-run2"></output></pre>
+        <button id="run2">Run Code</button>
+        <script id="script-run2">
+          // Old way:
+          function oldTest() {
+            var args = Array.prototype.slice.call(arguments);
+            console.log.apply(console, args);
+          }
+          // New way:
+          const test = (...args) => {
+            console.log(...args);
+          };
+          function run2() {
+            console.id = null;
+            console.id = 'run2';
+            oldTest(1, 'a', 3.14, [4, 5, 6]);
+            test(1, 'a', 3.14, [4, 5, 6]);
+          }
+          document.querySelector('#run2').addEventListener('click', run2);
+        </script>
+      </li>
+      <li>
+        There are a couple of other, more esoteric caveats to arrow functions.
+        One is the lack of a local binding for <code>super</code> and
+        <code>new.target</code>. If you're using those, hopefully you know what
+        you're doing already, or you should really find out. Quick.
+      </li>
+    </ul>
+  </body>
+</html>
